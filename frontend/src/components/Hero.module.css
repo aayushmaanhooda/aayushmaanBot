@@ -129,3 +129,43 @@
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
+
+@media (max-width: 600px) {
+  .hero {
+    padding: 32px 16px 120px;
+  }
+
+  .card {
+    padding: 24px 16px 20px;
+  }
+
+  .avatarImg {
+    width: 60px;
+    height: 60px;
+  }
+
+  .heading {
+    font-size: 20px;
+    white-space: normal;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .textBlock {
+    height: auto;
+    margin-bottom: 16px;
+  }
+
+  .chips {
+    gap: 6px;
+  }
+
+  .chip {
+    font-size: 12.5px;
+    padding: 7px 13px;
+    white-space: normal;
+    text-align: center;
+  }
+}

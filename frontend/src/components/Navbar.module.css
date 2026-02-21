@@ -140,3 +140,41 @@
   color: var(--accent);
   border-color: var(--accent);
 }
+
+@media (max-width: 600px) {
+  .navbar {
+    padding: 0 10px;
+  }
+
+  .inner {
+    padding: 10px 4px;
+  }
+
+  .title {
+    display: none;
+  }
+
+  .avatarImg {
+    width: 34px;
+    height: 34px;
+  }
+
+  .name {
+    font-size: 14px;
+  }
+
+  .iconLink {
+    width: 32px;
+    height: 32px;
+  }
+
+  .iconLink svg {
+    width: 17px;
+    height: 17px;
+  }
+
+  .themeToggle {
+    width: 32px;
+    height: 32px;
+  }
+}

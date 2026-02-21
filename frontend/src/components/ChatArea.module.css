@@ -106,3 +106,24 @@
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30%           { transform: translateY(-5px); opacity: 1; }
 }
+
+@media (max-width: 600px) {
+  .chat {
+    padding: 14px 12px 110px;
+  }
+
+  .bubble {
+    max-width: 88%;
+    font-size: 14px;
+    padding: 9px 13px;
+  }
+
+  .botAvatar {
+    width: 26px;
+    height: 26px;
+  }
+
+  .row {
+    gap: 8px;
+  }
+}
