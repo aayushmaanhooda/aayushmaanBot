@@ -1,6 +1,13 @@
 import styles from './ChatArea.module.css'
 import profileImg from '../assets/profile.png'
 
+function renderMarkdown(text) {
+  return text.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+  )
+}
+
 function TypingIndicator() {
   return (
     <div className={styles.row}>
@@ -29,8 +36,8 @@ export default function ChatArea({ messages, loading, chatEndRef }) {
             className={`${styles.bubble} ${
               msg.role === 'user' ? styles.user : styles.bot
             }`}
-            {...(msg.role === 'assistant' && msg.content.includes('<a ')
-              ? { dangerouslySetInnerHTML: { __html: msg.content } }
+            {...(msg.role === 'assistant'
+              ? { dangerouslySetInnerHTML: { __html: renderMarkdown(msg.content) } }
               : { children: msg.content }
             )}
           />
