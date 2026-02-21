@@ -2,10 +2,12 @@ import styles from './ChatArea.module.css'
 import profileImg from '../assets/profile.png'
 
 function renderMarkdown(text) {
-  return text.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
-  )
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(
+      /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+      '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+    )
 }
 
 function TypingIndicator() {

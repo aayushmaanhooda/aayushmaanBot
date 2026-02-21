@@ -70,7 +70,7 @@ export default function Navbar({ theme, onToggleTheme, onLogoClick }) {
           </div>
           <div className={styles.info}>
             <span className={styles.name}>Aayushmaan Hooda</span>
-            <span className={styles.title}>Applied AI Engineer</span>
+            <span className={styles.title}>Backend AI Engineer</span>
           </div>
         </button>
         <div className={styles.links}>

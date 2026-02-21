@@ -8,7 +8,16 @@ import './App.module.css'
 const API_URL = "https://aayushbot.myddns.me"
 
 const QUICK_ANSWERS = {
-  "What's your tech stack?": "My go-to stack is Python for everything — FastAPI and Flask on the backend, LangChain and LangGraph for AI orchestration, and Pinecone for vector storage. For infra I use Docker, GitHub Actions, and AWS. Streamlit when I need a quick AI frontend. Basically if it involves Python and AI, I'm in.",
+  "What's your tech stack?": `My stack is pretty broad but here's how it breaks down:
+**Languages:** Python mostly, JavaScript rarely, SQL, NOSQL
+**Frontend:** React, Streamlit
+**Backend:** FastAPI, Flask, Scrapy
+**AI Frameworks:** LangChain, LangGraph, CrewAI, Mem0
+**Databases:** PostgreSQL, MongoDB, Pinecone, FAISS, PgVector, Neo4j
+**AWS:** EC2, S3, API Gateway, Bedrock, PartyRock
+**DevOps:** Docker, GitHub Actions, Nginx, Gunicorn
+**Deployment:** EC2, Vercel, Render
+**Testing:** K6, Locust, Postman`,
 
   "Tell me about your AI projects": "I've built a bunch of things — a Voice RAG app where you literally speak a question and get a voice response back, a Leave Manager MCP Server using FastMCP and Claude Desktop, a multi-agent Resume Selector with CrewAI, and a full RAG evaluation framework using RAGAS. Most of them have a Medium article attached too. You can explore everything on my GitHub: https://github.com/aayushmaanhooda",
 
