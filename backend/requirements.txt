@@ -1,0 +1,16 @@
+langchain-pinecone
+langchain-community
+langchain-text-splitters
+langchain-tavily
+langchain-openai
+langgraph
+langchain
+pypdf
+pinecone
+
+fastapi
+uvicorn
+ipykernel
+
+python-dotenv
+openai

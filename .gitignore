@@ -1,0 +1,13 @@
+backend/app/__pycache__
+
+botv4
+backend/bot.pem
+backend/resource
+backend/.env
+backend/notebook/indexed_docs.json
+backend/notebook/test.md
+backend/app/indexed_docs.json
+backend/app/prompts.py 
+backend/app/test.html
+backend/app/aayushmaan.md
+
