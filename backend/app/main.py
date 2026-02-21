@@ -22,7 +22,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
-    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+    CORSMiddleware,
+    allow_origins=["https://aayushmaan-bot.vercel.app", "http://localhost:5173", "https://aayushbot.myddns.me"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -59,4 +62,4 @@ async def chat(req: ChatRequest):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
