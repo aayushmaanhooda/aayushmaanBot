@@ -5,7 +5,7 @@ import ChatArea from './components/ChatArea'
 import InputBar from './components/InputBar'
 import './App.module.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
+const API_URL = "http://3.27.77.207:8000"
 
 const QUICK_ANSWERS = {
   "What's your tech stack?": "My go-to stack is Python for everything — FastAPI and Flask on the backend, LangChain and LangGraph for AI orchestration, and Pinecone for vector storage. For infra I use Docker, GitHub Actions, and AWS. Streamlit when I need a quick AI frontend. Basically if it involves Python and AI, I'm in.",
@@ -15,7 +15,7 @@ const QUICK_ANSWERS = {
   "What's your work experience?": "Started my career as an Associate Software Engineer at Annalect in Gurugram for about 2 years — mostly Flask microservices and OpenAPI integrations with a US-based team. Then moved to Sydney for my Master's at UNSW and picked up an internship at Stoik working on FastAPI and MongoDB. Since finishing my Master's in September 2025 I've been fully focused on Applied AI and building agentic systems.",
 
   "What are your hobbies and interests?": "Outside of work — gym is a big part of my routine, keeps me disciplined. I play table tennis occasionally, which actually goes back to competing at national level in India. Big F1 fan — Kimi and Max all the way. Cricket too, being from India that one's non-negotiable. I'm also planning to learn piano and get into DJing, so watch this space.",
-  "Let's schedule a call": 'Sure, would love to chat! Click the button below to book a 30-min call with me 👉 <a href="http://localhost:8000/book-call" target="_blank" rel="noopener noreferrer">Book a Call</a>',
+  "Let's schedule a call": 'Sure, would love to chat! Click the button below to book a 30-min call with me 👉 <a href="http://3.27.77.207:8000/book-call" target="_blank" rel="noopener noreferrer">Book a Call</a>',
 }
 
 const QUICK_QUESTIONS = Object.keys(QUICK_ANSWERS)
