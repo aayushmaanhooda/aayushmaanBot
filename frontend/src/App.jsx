@@ -4,6 +4,7 @@ import Hero from './components/Hero'
 import ChatArea from './components/ChatArea'
 import InputBar from './components/InputBar'
 import VoiceModal from './components/VoiceModal'
+import { Analytics } from '@vercel/analytics/react'
 import './App.module.css'
 
 // const API_URL = "https://aayushbot.myddns.me"
@@ -139,6 +140,7 @@ export default function App() {
         onSuggestionClick={handleQuickQuestion}
       />
       {voiceOpen && <VoiceModal onClose={() => setVoiceOpen(false)} />}
+      <Analytics />
     </div>
   )
 }
