@@ -165,7 +165,7 @@ export default function VoiceModal({ onClose }) {
 
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2 className={styles.title}>Agentic Voice Rag (Beta)</h2>
+          <h2 className={styles.title}>Voice Assistant (Beta)</h2>
           <p className={styles.subtitle}>Talk to Aayushmaan's digital twin</p>
         </div>
 
