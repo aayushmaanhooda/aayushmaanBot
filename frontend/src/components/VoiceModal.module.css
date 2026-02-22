@@ -167,9 +167,19 @@
   color: #ef4444;
 }
 
-.status.processing,
+.status.processing {
+  color: var(--accent, #6c5ce7);
+  font-weight: 700;
+  animation: blink 1.2s ease-in-out infinite;
+}
+
 .status.speaking {
   color: var(--accent, #6c5ce7);
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
 }
 
 .transcript {
