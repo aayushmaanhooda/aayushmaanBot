@@ -103,14 +103,14 @@ def index_documents():
 
     chunks = splitter.split_text(md_text)
 
-    if _is_pinecone_empty():
-        _vector_store.add_documents(chunks)
-        _mark_indexed(filename, file_hash)
-        print(f"Indexed {len(chunks)} chunks")
-    else:
-        _mark_indexed(filename, file_hash)
-        total = _pc_index.describe_index_stats()["total_vector_count"]
-        print(f"Pinecone already has data ({total} vectors), skipping upsert")
+    namespace = "aayush-docs"
+    if not _is_pinecone_empty():
+        _pc_index.delete(delete_all=True, namespace=namespace)
+        print(f"Cleared old vectors from namespace '{namespace}'")
+
+    _vector_store.add_documents(chunks)
+    _mark_indexed(filename, file_hash)
+    print(f"Indexed {len(chunks)} chunks")
 
 
 # ---------------------------------------------------------------------------
