@@ -3,9 +3,11 @@ import Navbar from './components/Navbar'
 import Hero from './components/Hero'
 import ChatArea from './components/ChatArea'
 import InputBar from './components/InputBar'
+import VoiceModal from './components/VoiceModal'
 import './App.module.css'
 
-const API_URL = "https://aayushbot.myddns.me"
+// const API_URL = "https://aayushbot.myddns.me"
+const API_URL = "http://localhost:8000"
 
 const QUICK_ANSWERS = {
   "What's your tech stack?": `My stack is pretty broad but here's how it breaks down:
@@ -48,6 +50,7 @@ export default function App() {
   const chatEndRef = useRef(null)
   const inputRef = useRef(null)
 
+  const [voiceOpen, setVoiceOpen] = useState(false)
   const [usedQuestions, setUsedQuestions] = useState([])
   const hasStarted = messages.length > 0
   const remainingQuestions = QUICK_QUESTIONS.filter(q => !usedQuestions.includes(q))
@@ -111,7 +114,7 @@ export default function App() {
 
   return (
     <div className="app">
-      <Navbar theme={theme} onToggleTheme={toggleTheme} onLogoClick={() => { setMessages([]); setUsedQuestions([]) }} />
+      <Navbar theme={theme} onToggleTheme={toggleTheme} onLogoClick={() => { setMessages([]); setUsedQuestions([]) }} onVoiceClick={() => setVoiceOpen(true)} />
       <main className="main">
         {!hasStarted ? (
           <Hero
@@ -135,6 +138,7 @@ export default function App() {
         suggestions={hasStarted ? remainingQuestions : []}
         onSuggestionClick={handleQuickQuestion}
       />
+      {voiceOpen && <VoiceModal onClose={() => setVoiceOpen(false)} />}
     </div>
   )
 }

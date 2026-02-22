@@ -1,5 +1,6 @@
 import styles from './Navbar.module.css'
 import profileImg from '../assets/profile.png'
+import resumePdf from '../assets/resume.pdf'
 
 const LINKS = [
   {
@@ -41,6 +42,19 @@ const LINKS = [
       </svg>
     ),
   },
+  {
+    href: resumePdf,
+    label: 'Resume',
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+        <polyline points="14 2 14 8 20 8" />
+        <line x1="16" y1="13" x2="8" y2="13" />
+        <line x1="16" y1="17" x2="8" y2="17" />
+        <polyline points="10 9 9 9 8 9" />
+      </svg>
+    ),
+  },
 ]
 
 const SunIcon = () => (
@@ -59,7 +73,16 @@ const MoonIcon = () => (
   </svg>
 )
 
-export default function Navbar({ theme, onToggleTheme, onLogoClick }) {
+const MicIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" y1="19" x2="12" y2="23" />
+    <line x1="8" y1="23" x2="16" y2="23" />
+  </svg>
+)
+
+export default function Navbar({ theme, onToggleTheme, onLogoClick, onVoiceClick }) {
   return (
     <nav className={styles.navbar}>
       <div className={styles.inner}>
@@ -88,13 +111,23 @@ export default function Navbar({ theme, onToggleTheme, onLogoClick }) {
           ))}
         </div>
       </div>
-      <button
-        className={styles.themeToggle}
-        onClick={onToggleTheme}
-        aria-label="Toggle theme"
-      >
-        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-      </button>
+      <div className={styles.actions}>
+        <button
+          className={styles.voiceBtn}
+          onClick={onVoiceClick}
+          aria-label="Try Voice Agent"
+        >
+          <MicIcon />
+          <span className={styles.betaBadge}>beta</span>
+        </button>
+        <button
+          className={styles.themeToggle}
+          onClick={onToggleTheme}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        </button>
+      </div>
     </nav>
   )
 }

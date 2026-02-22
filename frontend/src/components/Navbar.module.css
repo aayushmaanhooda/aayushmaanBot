@@ -120,6 +120,50 @@
   color: var(--accent);
 }
 
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voiceBtn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: var(--accent-light);
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.voiceBtn:hover {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 0 12px rgba(108, 92, 231, 0.3);
+}
+
+.betaBadge {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 1px 4px;
+  border-radius: 6px;
+  background: var(--accent);
+  color: white;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
 .themeToggle {
   display: flex;
   align-items: center;
@@ -171,6 +215,11 @@
   .iconLink svg {
     width: 17px;
     height: 17px;
+  }
+
+  .voiceBtn {
+    width: 32px;
+    height: 32px;
   }
 
   .themeToggle {

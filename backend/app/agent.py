@@ -1,7 +1,7 @@
 import os
 import json
 import hashlib
-from typing import Literal, Optional, List
+from typing import Literal, Optional, List, TypedDict
 from datetime import datetime
 
 from dotenv import load_dotenv
@@ -9,6 +9,7 @@ from pydantic import BaseModel
 from langchain.chat_models import init_chat_model
 from langchain.tools import tool
 from langchain.agents import create_agent
+from langchain.agents.middleware import dynamic_prompt, ModelRequest
 from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from langchain_pinecone import PineconeVectorStore
@@ -16,7 +17,7 @@ from langchain_tavily import TavilySearch
 from pinecone import Pinecone, ServerlessSpec
 from langgraph.checkpoint.memory import InMemorySaver
 
-from prompts import system_prompt
+from prompts import system_prompt, voice_system_prompt
 
 load_dotenv()
 
@@ -218,6 +219,21 @@ def calendar_tool(query: str) -> str:
 
 
 # ---------------------------------------------------------------------------
+# Dynamic prompt middleware
+# ---------------------------------------------------------------------------
+
+
+class AgentContext(TypedDict):
+    is_voice: bool
+
+
+@dynamic_prompt
+def switch_prompt(request: ModelRequest) -> str:
+    is_voice = request.runtime.context.get("is_voice", False)
+    return voice_system_prompt if is_voice else system_prompt
+
+
+# ---------------------------------------------------------------------------
 # Build the agent — called once from FastAPI lifespan
 # ---------------------------------------------------------------------------
 
@@ -230,4 +246,10 @@ def build_agent():
     llm = init_chat_model("gpt-4o")
     checkpointer = InMemorySaver()
 
-    return create_agent(llm, tools, system_prompt=system_prompt, checkpointer=checkpointer)
+    return create_agent(
+        llm,
+        tools,
+        middleware=[switch_prompt],
+        context_schema=AgentContext,
+        checkpointer=checkpointer,
+    )

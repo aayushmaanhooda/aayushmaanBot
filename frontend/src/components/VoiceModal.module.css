@@ -1,0 +1,263 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.close:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  max-width: 460px;
+  width: 100%;
+}
+
+.header {
+  text-align: center;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+
+/* ---- Mic button ---- */
+
+.micWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.micRing {
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s ease;
+}
+
+.recording .micRing {
+  border-color: #ef4444;
+  box-shadow: 0 0 40px rgba(239, 68, 68, 0.2), 0 0 80px rgba(239, 68, 68, 0.1);
+  animation: pulseRing 1.5s ease-in-out infinite;
+}
+
+.processing .micRing {
+  border-color: var(--accent, #6c5ce7);
+  box-shadow: 0 0 40px rgba(108, 92, 231, 0.2);
+  animation: spinRing 2s linear infinite;
+}
+
+.speaking .micRing {
+  border-color: var(--accent, #6c5ce7);
+  box-shadow: 0 0 30px rgba(108, 92, 231, 0.15);
+}
+
+@keyframes pulseRing {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.08); opacity: 0.6; }
+}
+
+@keyframes spinRing {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.micBtn {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+.micBtn:hover:not(:disabled) {
+  border-color: var(--accent, #6c5ce7);
+  box-shadow: 0 0 24px rgba(108, 92, 231, 0.25);
+}
+
+.micBtn:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.micBtn:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.recording .micBtn {
+  border-color: #ef4444;
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.recording .micBtn svg {
+  color: #ef4444;
+}
+
+.processing .micBtn {
+  border-color: var(--accent, #6c5ce7);
+}
+
+/* ---- Status text ---- */
+
+.status {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+  min-height: 1.2rem;
+  transition: color 0.3s;
+}
+
+.status.recording {
+  color: #ef4444;
+}
+
+.status.processing,
+.status.speaking {
+  color: var(--accent, #6c5ce7);
+}
+
+.transcript {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6);
+  text-align: center;
+  font-style: italic;
+  max-width: 90%;
+  line-height: 1.4;
+}
+
+/* ---- Waveform ---- */
+
+.waveform {
+  width: 100%;
+  height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  opacity: 0;
+  transform: scaleY(0.5);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.waveformActive {
+  opacity: 1;
+  transform: scaleY(1);
+}
+
+.bar {
+  width: 4px;
+  height: 4px;
+  background: var(--accent, #6c5ce7);
+  border-radius: 4px;
+  transition: height 0.06s ease;
+  box-shadow: 0 0 6px rgba(108, 92, 231, 0.3);
+}
+
+/* ---- Footer ---- */
+
+.footer {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.25);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-top: 1rem;
+}
+
+/* ---- Mobile ---- */
+
+@media (max-width: 600px) {
+  .container {
+    padding: 1.5rem 1rem;
+    gap: 1.2rem;
+  }
+
+  .title {
+    font-size: 1.25rem;
+  }
+
+  .micBtn {
+    width: 100px;
+    height: 100px;
+  }
+
+  .micRing {
+    width: 136px;
+    height: 136px;
+  }
+
+  .micBtn svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .close {
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+  }
+
+  .waveform {
+    height: 50px;
+  }
+
+  .bar {
+    width: 3px;
+  }
+}
