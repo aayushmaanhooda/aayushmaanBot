@@ -8,6 +8,10 @@ function renderMarkdown(text) {
       /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
       '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
     )
+    .replace(
+      /(^|[^"'>])(https?:\/\/[^\s<]+)/g,
+      '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>'
+    )
 }
 
 function TypingIndicator() {
