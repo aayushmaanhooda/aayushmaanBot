@@ -1,0 +1,37 @@
+🟢 Easy (Basic Identity & Personal Info)
+Who is Aayushmaan Hooda?
+What is Aayushmaan's nickname?
+Where was Aayushmaan born?
+Where does Aayushmaan currently live?
+What is Aayushmaan's email address?
+What sport did Aayushmaan play and what was his biggest achievement in it?
+Who named Aayushmaan?
+What is Aayushmaan's date of birth?
+What is the link to Aayushmaan's personal bot?
+Who is Aayushmaan's favourite aunt?
+
+
+🟡 Medium (Education, Work & Skills)
+Where did Aayushmaan complete his Bachelor's degree and in what field?
+When did Aayushmaan move to Sydney and why?
+What was Aayushmaan's first job and how long did he work there?
+What did Aayushmaan work on during his internship at Stoik?
+What subjects did Aayushmaan study during his Master's at UNSW?
+When did Aayushmaan complete and receive his Master's degree?
+What are Aayushmaan's strongest technical skills?
+What databases has Aayushmaan worked with?
+What AWS services has Aayushmaan used?
+What certifications does Aayushmaan hold?
+
+
+🔴 Hard (Projects, AI Work & Deep Technical)
+What AI projects has Aayushmaan built and what tools did he use?
+How does Aayushmaan's Voice RAG project work end to end?
+What is the Leave Manager MCP Server and what does it do?
+What RAG evaluation metrics did Aayushmaan use in his RAGAS project?
+How does Aayushmaan implement long-term memory in his LangGraph projects?
+What articles has Aayushmaan written on Medium and what topics do they cover?
+What makes Aayushmaan different from other AI engineers?
+How does Aayushmaan's Resume Selector Agent work and what framework does it use?
+What is Corrective RAG (CRAG) and has Aayushmaan written or built anything around it?
+Can Aayushmaan build a full end-to-end AI application? Give examples from his portfolio.
