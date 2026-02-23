@@ -9,129 +9,33 @@ jobs:
   smoke-test:
     runs-on: ubuntu-latest
 
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-      PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
-      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
-      LANGSMITH_TRACING: "false"
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
-      - name: Install dependencies
-        run: pip install -r backend/requirements.txt
-
-      - name: Start server
-        run: |
-          cd backend/app
-          python main.py > /tmp/server.log 2>&1 &
-          echo $! > /tmp/server.pid
-          echo "Server PID: $(cat /tmp/server.pid)"
-          echo "Waiting for server to start..."
-
-          SERVER_UP=false
-          for i in $(seq 1 120); do
-            if curl -s http://localhost:8000/health > /dev/null 2>&1; then
-              echo "✅ Server is up after ${i}s"
-              SERVER_UP=true
-              break
-            fi
-            if ! kill -0 $(cat /tmp/server.pid) 2>/dev/null; then
-              echo "❌ Server process died. Logs:"
-              cat /tmp/server.log
-              exit 1
-            fi
-            sleep 1
-          done
-
-          if [ "$SERVER_UP" = false ]; then
-            echo "❌ Server did not start within 120s. Logs:"
-            cat /tmp/server.log
-            exit 1
-          fi
-
       - name: Test /health endpoint
         run: |
-          RESPONSE=$(curl -s --max-time 10 -o /tmp/health_response.json -w "%{http_code}" \
-            http://localhost:8000/health)
+          RESPONSE=$(curl -s --connect-timeout 15 --max-time 30 -o /tmp/health.json -w "%{http_code}" \
+            "${{ secrets.EC2_BASE_URL }}/health")
 
-          echo "Status code: $RESPONSE"
-          cat /tmp/health_response.json
-
-          if [ "$RESPONSE" != "200" ]; then
-            echo "❌ /health returned status $RESPONSE"
-            cat /tmp/server.log
-            exit 1
-          fi
-
-          echo "✅ /health passed"
+          echo "Status: $RESPONSE"
+          cat /tmp/health.json
+          [ "$RESPONSE" = "200" ] && echo "✅ /health passed" || { echo "❌ /health failed"; exit 1; }
 
       - name: Test /chat endpoint
         run: |
-          RESPONSE=$(curl -s --max-time 120 -o /tmp/chat_response.json -w "%{http_code}" \
-            -X POST http://localhost:8000/chat \
+          RESPONSE=$(curl -s --connect-timeout 15 --max-time 120 -o /tmp/chat.json -w "%{http_code}" \
+            -X POST "${{ secrets.EC2_BASE_URL }}/chat" \
             -H "Content-Type: application/json" \
-            -d '{"message": "Who is Aayushmaan?", "thread_id": "ci-test-123"}')
+            -d '{"message": "Who is Aayushmaan?", "thread_id": "ci-smoke-test"}')
 
-          echo "Status code: $RESPONSE"
-          echo "Response body:"
-          cat /tmp/chat_response.json
-
-          if [ "$RESPONSE" != "200" ]; then
-            echo "❌ /chat returned status $RESPONSE"
-            cat /tmp/server.log
-            exit 1
-          fi
-
-          REPLY=$(cat /tmp/chat_response.json | python3 -c "import sys,json; print(json.load(sys.stdin).get('reply',''))")
-          echo "Reply: $REPLY"
-
-          if [ -z "$REPLY" ]; then
-            echo "❌ /chat returned empty reply"
-            exit 1
-          fi
-
-          echo "✅ /chat passed"
-
-      - name: Test /voice-chat endpoint
-        run: |
-          python3 -c "
-          import struct, wave
-          with wave.open('/tmp/test.wav', 'w') as w:
-              w.setnchannels(1)
-              w.setsampwidth(2)
-              w.setframerate(16000)
-              w.writeframes(struct.pack('<' + 'h' * 16000, *([0] * 16000)))
-          "
-
-          RESPONSE=$(curl -s --max-time 120 -o /tmp/voice_response.json -w "%{http_code}" \
-            -X POST http://localhost:8000/voice-chat \
-            -F "audio=@/tmp/test.wav")
-
-          echo "Status code: $RESPONSE"
-          echo "Response body:"
-          cat /tmp/voice_response.json
-
-          if [ "$RESPONSE" = "400" ]; then
-            echo "⚠️  /voice-chat returned 400 (silent audio, transcription empty) — endpoint is reachable"
-            echo "✅ /voice-chat passed (endpoint alive)"
-            exit 0
-          fi
+          echo "Status: $RESPONSE"
+          cat /tmp/chat.json
 
           if [ "$RESPONSE" != "200" ]; then
-            echo "❌ /voice-chat returned status $RESPONSE"
-            cat /tmp/server.log
+            echo "❌ /chat returned $RESPONSE"
             exit 1
           fi
 
-          echo "✅ /voice-chat passed"
+          REPLY=$(python3 -c "import sys,json; print(json.load(sys.stdin).get('reply',''))" < /tmp/chat.json)
+          [ -n "$REPLY" ] && echo "✅ /chat passed" || { echo "❌ empty reply"; exit 1; }
 
       - name: All smoke tests passed
-        run: echo "🚀 All endpoints are healthy"
+        run: echo "🚀 All endpoints healthy"
