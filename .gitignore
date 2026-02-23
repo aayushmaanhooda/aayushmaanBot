@@ -16,3 +16,4 @@ backend/app/audio_files
 backend/app/voice/__pycache__
 backend/app/testing.txt
 backend/app/truth.jsonl
+.DS_Store
