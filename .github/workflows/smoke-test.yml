@@ -1,4 +1,4 @@
-name: AayushBot Smoke Test
+name: AayushBot Post-Deploy Health Check
 
 on:
   workflow_dispatch:
