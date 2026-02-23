@@ -68,7 +68,11 @@ async def chat(req: ChatRequest):
                 yield f"data: {json.dumps({'token': msg.content})}\n\n"
         yield "data: [DONE]\n\n"
 
-    return StreamingResponse(token_stream(), media_type="text/event-stream")
+    return StreamingResponse(
+        token_stream(),
+        media_type="text/event-stream",
+        headers={"X-Accel-Buffering": "no", "Cache-Control": "no-cache"},
+    )
 
 
 @app.post("/voice-chat")
