@@ -2,8 +2,8 @@ import { useState, useRef, useCallback, useEffect } from 'react'
 import styles from './VoiceModal.module.css'
 
 const BAR_COUNT = 50
-// const API_URL = "https://aayushbot.myddns.me"
-const API_URL = "http://localhost:8000"
+const API_URL = "https://aayushbot.myddns.me"
+// const API_URL = "http://localhost:8000"
 
 export default function VoiceModal({ onClose }) {
   const [phase, setPhase] = useState('idle') // idle | recording | processing | speaking
