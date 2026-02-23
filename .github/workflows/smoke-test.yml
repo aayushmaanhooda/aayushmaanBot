@@ -9,38 +9,66 @@ jobs:
   smoke-test:
     runs-on: ubuntu-latest
 
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
+      PINECONE_INDEX_NAME: ${{ secrets.PINECONE_INDEX_NAME }}
+      TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+      LANGSMITH_TRACING: "false"
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install dependencies
+        run: pip install -r backend/requirements.txt
+
+      - name: Start server
+        run: |
+          cd backend/app
+          python main.py &
+          echo "Waiting for server to start..."
+          for i in $(seq 1 60); do
+            if curl -s http://localhost:8000/health > /dev/null 2>&1; then
+              echo "Server is up after ${i}s"
+              break
+            fi
+            sleep 1
+          done
+
       - name: Test /health endpoint
         run: |
-          RESPONSE=$(curl -s -o /tmp/health_response.json -w "%{http_code}" \
-            "${{ secrets.EC2_BASE_URL }}/health")
+          RESPONSE=$(curl -s --max-time 10 -o /tmp/health_response.json -w "%{http_code}" \
+            http://localhost:8000/health)
 
           echo "Status code: $RESPONSE"
           cat /tmp/health_response.json
 
           if [ "$RESPONSE" != "200" ]; then
-            echo "/health returned status $RESPONSE"
+            echo "❌ /health returned status $RESPONSE"
             exit 1
           fi
 
-          echo "/health passed"
+          echo "✅ /health passed"
 
       - name: Test /chat endpoint
         run: |
-          RESPONSE=$(curl -s -o /tmp/chat_response.json -w "%{http_code}" \
-            -X POST "${{ secrets.EC2_BASE_URL }}/chat" \
+          RESPONSE=$(curl -s --max-time 120 -o /tmp/chat_response.json -w "%{http_code}" \
+            -X POST http://localhost:8000/chat \
             -H "Content-Type: application/json" \
-            -d '{"message": "What is aayushmaan Experience with applied AI?", "thread_id": "ci-test-123"}')
+            -d '{"message": "Who is Aayushmaan?", "thread_id": "ci-test-123"}')
 
           echo "Status code: $RESPONSE"
           echo "Response body:"
           cat /tmp/chat_response.json
 
           if [ "$RESPONSE" != "200" ]; then
-            echo "/chat returned status $RESPONSE"
+            echo "❌ /chat returned status $RESPONSE"
             exit 1
           fi
 
@@ -48,11 +76,11 @@ jobs:
           echo "Reply: $REPLY"
 
           if [ -z "$REPLY" ]; then
-            echo "/chat returned empty reply"
+            echo "❌ /chat returned empty reply"
             exit 1
           fi
 
-          echo "/chat passed"
+          echo "✅ /chat passed"
 
       - name: Test /voice-chat endpoint
         run: |
@@ -65,31 +93,26 @@ jobs:
               w.writeframes(struct.pack('<' + 'h' * 16000, *([0] * 16000)))
           "
 
-          RESPONSE=$(curl -s -o /tmp/voice_response.json -w "%{http_code}" \
-            -X POST "${{ secrets.EC2_BASE_URL }}/voice-chat" \
+          RESPONSE=$(curl -s --max-time 120 -o /tmp/voice_response.json -w "%{http_code}" \
+            -X POST http://localhost:8000/voice-chat \
             -F "audio=@/tmp/test.wav")
 
           echo "Status code: $RESPONSE"
           echo "Response body:"
           cat /tmp/voice_response.json
 
-          if [ "$RESPONSE" = "000" ]; then
-            echo "/voice-chat: could not connect"
-            exit 1
-          fi
-
           if [ "$RESPONSE" = "400" ]; then
-            echo "/voice-chat returned 400 (silent audio, transcription empty) — endpoint is reachable"
-            echo "/voice-chat passed (endpoint alive)"
+            echo "⚠️  /voice-chat returned 400 (silent audio, transcription empty) — endpoint is reachable"
+            echo "✅ /voice-chat passed (endpoint alive)"
             exit 0
           fi
 
           if [ "$RESPONSE" != "200" ]; then
-            echo "/voice-chat returned status $RESPONSE"
+            echo "❌ /voice-chat returned status $RESPONSE"
             exit 1
           fi
 
-          echo "/voice-chat passed"
+          echo "✅ /voice-chat passed"
 
       - name: All smoke tests passed
         run: echo "🚀 All endpoints are healthy"
