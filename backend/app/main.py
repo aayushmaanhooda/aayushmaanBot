@@ -1,10 +1,12 @@
 import os
+import json
 import uuid
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
-from fastapi.responses import RedirectResponse, FileResponse
+from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+from langchain_core.messages import AIMessageChunk
 
 from models import ChatRequest
 from agent import build_agent
@@ -55,14 +57,18 @@ async def chat(req: ChatRequest):
     agent = app.state.agent
     config = {"configurable": {"thread_id": req.thread_id}}
 
-    response = await agent.ainvoke(
-        {"messages": [{"role": "user", "content": req.message}]},
-        config=config,
-        context={"is_voice": False},
-    )
+    async def token_stream():
+        async for msg, metadata in agent.astream(
+            {"messages": [{"role": "user", "content": req.message}]},
+            config=config,
+            context={"is_voice": False},
+            stream_mode="messages",
+        ):
+            if isinstance(msg, AIMessageChunk) and msg.content and not msg.tool_calls:
+                yield f"data: {json.dumps({'token': msg.content})}\n\n"
+        yield "data: [DONE]\n\n"
 
-    ai_message = response["messages"][-1]
-    return {"reply": ai_message.content, "thread_id": req.thread_id}
+    return StreamingResponse(token_stream(), media_type="text/event-stream")
 
 
 @app.post("/voice-chat")
@@ -104,5 +110,4 @@ def get_audio(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

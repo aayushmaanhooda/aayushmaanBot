@@ -82,8 +82,41 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ message: text.trim(), thread_id: threadId }),
       })
-      const data = await res.json()
-      setMessages(prev => [...prev, { role: 'assistant', content: data.reply }])
+
+      const reader = res.body.getReader()
+      const decoder = new TextDecoder()
+      let botReply = ''
+      let firstToken = true
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n')
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue
+          const payload = line.slice(6)
+          if (payload === '[DONE]') break
+          try {
+            const { token } = JSON.parse(payload)
+            botReply += token
+
+            if (firstToken) {
+              setMessages(prev => [...prev, { role: 'assistant', content: botReply }])
+              setLoading(false)
+              firstToken = false
+            } else {
+              setMessages(prev => {
+                const updated = [...prev]
+                updated[updated.length - 1] = { role: 'assistant', content: botReply }
+                return updated
+              })
+            }
+          } catch {}
+        }
+      }
     } catch {
       setMessages(prev => [
         ...prev,

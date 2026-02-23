@@ -150,7 +150,7 @@ Available sections:
 - Life Journey (Timeline)
 - Family
 - Sports Achievements
-""")
+""", config={"callbacks": []})
 
 
 # ---------------------------------------------------------------------------
