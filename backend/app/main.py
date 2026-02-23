@@ -110,4 +110,14 @@ def get_audio(filename: str):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    from dotenv import load_dotenv
+
+    load_dotenv()
+    is_prod = os.getenv("ENV") == "production"
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=not is_prod,
+        workers=2 if is_prod else 1,
+    )
