@@ -17,7 +17,7 @@ jobs:
 
           echo "Status: $RESPONSE"
           cat /tmp/health.json
-          [ "$RESPONSE" = "200" ] && echo "✅ /health passed" || { echo "❌ /health failed"; exit 1; }
+          [ "$RESPONSE" = "200" ] && echo "/health passed" || { echo "/health failed"; exit 1; }
 
       - name: Test /chat endpoint
         run: |
@@ -30,12 +30,12 @@ jobs:
           cat /tmp/chat.json
 
           if [ "$RESPONSE" != "200" ]; then
-            echo "❌ /chat returned $RESPONSE"
+            echo "/chat returned $RESPONSE"
             exit 1
           fi
 
           REPLY=$(python3 -c "import sys,json; print(json.load(sys.stdin).get('reply',''))" < /tmp/chat.json)
-          [ -n "$REPLY" ] && echo "✅ /chat passed" || { echo "❌ empty reply"; exit 1; }
+          [ -n "$REPLY" ] && echo "/chat passed" || { echo "empty reply"; exit 1; }
 
       - name: All smoke tests passed
         run: echo "🚀 All endpoints healthy"
