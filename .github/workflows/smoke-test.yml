@@ -10,6 +10,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Debug connectivity
+        run: |
+          URL="${{ secrets.EC2_BASE_URL }}"
+          HOST=$(echo "$URL" | sed 's|https\?://||' | sed 's|/.*||')
+          echo "Host: $HOST"
+          echo "--- DNS lookup ---"
+          nslookup "$HOST" || true
+          echo "--- Curl verbose ---"
+          curl -v --connect-timeout 10 "$URL/health" 2>&1 || true
+
       - name: Test /health endpoint
         run: |
           RESPONSE=$(curl -s --connect-timeout 15 --max-time 30 -o /tmp/health.json -w "%{http_code}" \
