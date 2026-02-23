@@ -18,3 +18,4 @@ openai
 faster-whisper
 edge-tts
 python-multipart
+openevals

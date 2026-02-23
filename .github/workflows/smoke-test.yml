@@ -1,0 +1,95 @@
+name: AayushBot Smoke Test
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  smoke-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Test /health endpoint
+        run: |
+          RESPONSE=$(curl -s -o /tmp/health_response.json -w "%{http_code}" \
+            "${{ secrets.EC2_BASE_URL }}/health")
+
+          echo "Status code: $RESPONSE"
+          cat /tmp/health_response.json
+
+          if [ "$RESPONSE" != "200" ]; then
+            echo "/health returned status $RESPONSE"
+            exit 1
+          fi
+
+          echo "/health passed"
+
+      - name: Test /chat endpoint
+        run: |
+          RESPONSE=$(curl -s -o /tmp/chat_response.json -w "%{http_code}" \
+            -X POST "${{ secrets.EC2_BASE_URL }}/chat" \
+            -H "Content-Type: application/json" \
+            -d '{"message": "What is aayushmaan Experience with applied AI?", "thread_id": "ci-test-123"}')
+
+          echo "Status code: $RESPONSE"
+          echo "Response body:"
+          cat /tmp/chat_response.json
+
+          if [ "$RESPONSE" != "200" ]; then
+            echo "/chat returned status $RESPONSE"
+            exit 1
+          fi
+
+          REPLY=$(cat /tmp/chat_response.json | python3 -c "import sys,json; print(json.load(sys.stdin).get('reply',''))")
+          echo "Reply: $REPLY"
+
+          if [ -z "$REPLY" ]; then
+            echo "/chat returned empty reply"
+            exit 1
+          fi
+
+          echo "/chat passed"
+
+      - name: Test /voice-chat endpoint
+        run: |
+          python3 -c "
+          import struct, wave
+          with wave.open('/tmp/test.wav', 'w') as w:
+              w.setnchannels(1)
+              w.setsampwidth(2)
+              w.setframerate(16000)
+              w.writeframes(struct.pack('<' + 'h' * 16000, *([0] * 16000)))
+          "
+
+          RESPONSE=$(curl -s -o /tmp/voice_response.json -w "%{http_code}" \
+            -X POST "${{ secrets.EC2_BASE_URL }}/voice-chat" \
+            -F "audio=@/tmp/test.wav")
+
+          echo "Status code: $RESPONSE"
+          echo "Response body:"
+          cat /tmp/voice_response.json
+
+          if [ "$RESPONSE" = "000" ]; then
+            echo "/voice-chat: could not connect"
+            exit 1
+          fi
+
+          if [ "$RESPONSE" = "400" ]; then
+            echo "/voice-chat returned 400 (silent audio, transcription empty) — endpoint is reachable"
+            echo "/voice-chat passed (endpoint alive)"
+            exit 0
+          fi
+
+          if [ "$RESPONSE" != "200" ]; then
+            echo "/voice-chat returned status $RESPONSE"
+            exit 1
+          fi
+
+          echo "/voice-chat passed"
+
+      - name: All smoke tests passed
+        run: echo "🚀 All endpoints are healthy"
