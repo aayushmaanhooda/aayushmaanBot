@@ -1,8 +1,11 @@
 import os
 import json
 import hashlib
+import warnings
 from typing import Literal, Optional, List, TypedDict
 from datetime import datetime
+
+warnings.filterwarnings("ignore", message=".*PydanticSerializationUnexpectedValue.*")
 
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -16,6 +19,7 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_tavily import TavilySearch
 from pinecone import Pinecone, ServerlessSpec
 from langgraph.checkpoint.memory import InMemorySaver
+from langchain.agents.middleware import PIIMiddleware
 
 from prompts import system_prompt, voice_system_prompt
 
@@ -249,7 +253,24 @@ def build_agent():
     return create_agent(
         llm,
         tools,
-        middleware=[switch_prompt],
+        middleware=[
+            switch_prompt,
+            PIIMiddleware(
+            pii_type="email",
+            strategy="redact",  
+            apply_to_input=True,           # Scrub user input
+            apply_to_tool_results=True,    # ← Scrub retriever output
+            apply_to_output=True           # Scrub model output
+        ),
+        PIIMiddleware(
+            pii_type="australia_phone",
+            detector=r"(\+?61|0)?[ -]?(4\d{8}|(?:[2-8]\d{2})[ -]?\d{4}[ -]?\d{4})",
+            strategy="redact",  # or "mask", "hash", "block"
+            apply_to_tool_results=True  # Scrubs retriever output
+        )
+            
+            
+            ],
         context_schema=AgentContext,
         checkpointer=checkpointer,
     )
