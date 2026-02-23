@@ -7,8 +7,7 @@ import VoiceModal from './components/VoiceModal'
 import { Analytics } from '@vercel/analytics/react'
 import './App.module.css'
 
-const API_URL = "https://aayushbot.myddns.me"
-// const API_URL = "http://localhost:8000"
+const API_URL = import.meta.env.VITE_API_URL
 
 const QUICK_ANSWERS = {
   "What's your tech stack?": `My stack is pretty broad but here's how it breaks down:
