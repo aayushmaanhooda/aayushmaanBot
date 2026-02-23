@@ -31,15 +31,31 @@ jobs:
       - name: Start server
         run: |
           cd backend/app
-          python main.py &
+          python main.py > /tmp/server.log 2>&1 &
+          echo $! > /tmp/server.pid
+          echo "Server PID: $(cat /tmp/server.pid)"
           echo "Waiting for server to start..."
-          for i in $(seq 1 60); do
+
+          SERVER_UP=false
+          for i in $(seq 1 120); do
             if curl -s http://localhost:8000/health > /dev/null 2>&1; then
-              echo "Server is up after ${i}s"
+              echo "✅ Server is up after ${i}s"
+              SERVER_UP=true
               break
+            fi
+            if ! kill -0 $(cat /tmp/server.pid) 2>/dev/null; then
+              echo "❌ Server process died. Logs:"
+              cat /tmp/server.log
+              exit 1
             fi
             sleep 1
           done
+
+          if [ "$SERVER_UP" = false ]; then
+            echo "❌ Server did not start within 120s. Logs:"
+            cat /tmp/server.log
+            exit 1
+          fi
 
       - name: Test /health endpoint
         run: |
@@ -51,6 +67,7 @@ jobs:
 
           if [ "$RESPONSE" != "200" ]; then
             echo "❌ /health returned status $RESPONSE"
+            cat /tmp/server.log
             exit 1
           fi
 
@@ -69,6 +86,7 @@ jobs:
 
           if [ "$RESPONSE" != "200" ]; then
             echo "❌ /chat returned status $RESPONSE"
+            cat /tmp/server.log
             exit 1
           fi
 
@@ -109,6 +127,7 @@ jobs:
 
           if [ "$RESPONSE" != "200" ]; then
             echo "❌ /voice-chat returned status $RESPONSE"
+            cat /tmp/server.log
             exit 1
           fi
 
