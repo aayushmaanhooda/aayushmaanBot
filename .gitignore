@@ -10,6 +10,7 @@ backend/app/indexed_docs.json
 backend/app/prompts.py 
 backend/app/test.html
 backend/app/aayushmaan.md
+backend/locustfile.py
 
 backend/ec2.txt
 backend/app/audio_files
@@ -19,3 +20,4 @@ backend/app/truth.jsonl
 .DS_Store
 .DS_Stores
 frontend/.env.development
+locust.png
