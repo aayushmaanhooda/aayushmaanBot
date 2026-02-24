@@ -55,6 +55,25 @@ Browser (Vercel)          EC2 Instance
 | `age_calculator` | Calculates age from DOB |
 | `calendar_tool` | Current date/time info |
 
+## Observability — LangSmith
+
+- All agent invocations are traced via **LangSmith** with background callbacks (zero latency impact)
+- Traces capture the full chain: user query → tool routing (o3-mini) → RAG retrieval → GPT-4o response
+- Traces grouped under the `aayushmaanBot` project in the LangSmith dashboard
+
+## RAG Evaluation
+
+Evaluation dataset of 50 question-answer pairs tested against 5 metrics using **OpenEvals** (LLM-as-judge with GPT-4o-mini):
+
+| Metric | What it measures |
+|--------|-----------------|
+| **Correctness** | Does the answer match the reference answer? |
+| **Conciseness** | Is the response concise without unnecessary filler? |
+| **Hallucination** | Does the answer fabricate info not in the knowledge base? |
+| **Helpfulness** | Does the response actually answer the question well? |
+| **Relevance** | Is the answer on-topic and directly addresses the query? |
+
+
 ## CI/CD
 
 - **GitHub Actions** — manual post-deploy health check (`workflow_dispatch`)
