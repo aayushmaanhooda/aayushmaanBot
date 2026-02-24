@@ -228,8 +228,16 @@
   display: none;
 }
 
+.overlayVisible {
+  pointer-events: auto;
+}
+
 .mobileMenu {
   display: none;
+}
+
+.mobileMenuVisible {
+  pointer-events: auto;
 }
 
 .mobileLink {
@@ -333,22 +341,39 @@
     display: block;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.2);
-    z-index: 98;
+    background: rgba(0, 0, 0, 0.35);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .overlayVisible {
+    opacity: 1;
+    visibility: visible;
   }
 
   .mobileMenu {
     display: flex;
     flex-direction: column;
-    position: absolute;
-    top: 100%;
+    position: fixed;
+    top: 54px;
     left: 0;
     right: 0;
     background: var(--bg);
     border-top: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
     padding: 8px;
-    z-index: 99;
-    animation: slideDown 0.2s ease;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease;
+  }
+
+  .mobileMenuVisible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
   }
 }

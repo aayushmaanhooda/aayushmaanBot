@@ -87,95 +87,96 @@ export default function Navbar({ theme, onToggleTheme, onLogoClick, onVoiceClick
   const [menuOpen, setMenuOpen] = useState(false)
 
   return (
-    <nav className={styles.navbar}>
-      <div className={styles.inner}>
-        <button className={styles.left} onClick={onLogoClick}>
-          <div className={styles.avatar}>
-            <img src={profileImg} alt="Aayushmaan" className={styles.avatarImg} />
-            <span className={styles.onlineDot} />
-          </div>
-          <div className={styles.info}>
-            <span className={styles.name}>Aayushmaan Hooda</span>
-            <span className={styles.title}>Backend AI Engineer</span>
-          </div>
-        </button>
-        <div className={styles.links}>
-          {LINKS.map(link => (
-            <a
-              key={link.label}
-              href={link.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.iconLink}
-              aria-label={link.label}
-            >
-              {link.icon}
-            </a>
-          ))}
-        </div>
-      </div>
-      <div className={styles.actions}>
-        <button
-          className={styles.voiceBtn}
-          onClick={onVoiceClick}
-          aria-label="Try Voice Agent"
-        >
-          <MicIcon />
-          <span className={styles.betaBadge}>beta</span>
-        </button>
-        <button
-          className={styles.themeToggle}
-          onClick={onToggleTheme}
-          aria-label="Toggle theme"
-        >
-          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-        </button>
-      </div>
-
-      <button
-        className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
-        onClick={() => setMenuOpen(prev => !prev)}
-        aria-label="Menu"
-      >
-        <span /><span /><span />
-      </button>
-
-      {menuOpen && (
-        <>
-          <div className={styles.overlay} onClick={() => setMenuOpen(false)} />
-          <div className={styles.mobileMenu}>
+    <>
+      <nav className={styles.navbar}>
+        <div className={styles.inner}>
+          <button className={styles.left} onClick={onLogoClick}>
+            <div className={styles.avatar}>
+              <img src={profileImg} alt="Aayushmaan" className={styles.avatarImg} />
+              <span className={styles.onlineDot} />
+            </div>
+            <div className={styles.info}>
+              <span className={styles.name}>Aayushmaan Hooda</span>
+              <span className={styles.title}>Backend AI Engineer</span>
+            </div>
+          </button>
+          <div className={styles.links}>
             {LINKS.map(link => (
               <a
                 key={link.label}
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={styles.mobileLink}
-                onClick={() => setMenuOpen(false)}
+                className={styles.iconLink}
+                aria-label={link.label}
               >
                 {link.icon}
-                <span>{link.label}</span>
               </a>
             ))}
-            <div className={styles.menuDivider} />
-            <button
-              className={styles.mobileLink}
-              onClick={() => { onVoiceClick(); setMenuOpen(false) }}
-            >
-              <MicIcon />
-              <span>Voice Agent</span>
-              <span className={styles.mobileBeta}>beta</span>
-            </button>
-            <button
-              className={styles.mobileLink}
-              onClick={() => { onToggleTheme(); setMenuOpen(false) }}
-            >
-              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
-            </button>
           </div>
-        </>
-      )}
-    </nav>
+        </div>
+        <div className={styles.actions}>
+          <button
+            className={styles.voiceBtn}
+            onClick={onVoiceClick}
+            aria-label="Try Voice Agent"
+          >
+            <MicIcon />
+            <span className={styles.betaBadge}>beta</span>
+          </button>
+          <button
+            className={styles.themeToggle}
+            onClick={onToggleTheme}
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          </button>
+        </div>
+
+        <button
+          className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
+          onClick={() => setMenuOpen(prev => !prev)}
+          aria-label="Menu"
+        >
+          <span /><span /><span />
+        </button>
+      </nav>
+
+      <div
+        className={`${styles.overlay} ${menuOpen ? styles.overlayVisible : ''}`}
+        onClick={() => setMenuOpen(false)}
+      />
+      <div className={`${styles.mobileMenu} ${menuOpen ? styles.mobileMenuVisible : ''}`}>
+        {LINKS.map(link => (
+          <a
+            key={link.label}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.mobileLink}
+            onClick={() => setMenuOpen(false)}
+          >
+            {link.icon}
+            <span>{link.label}</span>
+          </a>
+        ))}
+        <div className={styles.menuDivider} />
+        <button
+          className={styles.mobileLink}
+          onClick={() => { onVoiceClick(); setMenuOpen(false) }}
+        >
+          <MicIcon />
+          <span>Voice Agent</span>
+          <span className={styles.mobileBeta}>beta</span>
+        </button>
+        <button
+          className={styles.mobileLink}
+          onClick={() => { onToggleTheme(); setMenuOpen(false) }}
+        >
+          {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+          <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+        </button>
+      </div>
+    </>
   )
 }
