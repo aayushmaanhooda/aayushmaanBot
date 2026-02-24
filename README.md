@@ -78,9 +78,19 @@ High response times are expected — each request involves LLM inference, RAG re
 ## Tech Stack
 
 **Frontend**: React, CSS Modules, Vite, Vercel Analytics
-**Backend**: Python, FastAPI, Uvicorn, Nginx, Gunicorn
+
+**Backend**: Python, FastAPI, Uvicorn, Nginx
+
 **AI/ML**: LangChain, LangGraph, OpenAI GPT-4o, o3-mini, Pinecone, Tavily
+
 **Voice**: faster-whisper, edge-tts
+
 **Infra**: AWS EC2, Vercel, Certbot SSL, systemd
+
 **Testing**: Locust, GitHub Actions
+
 **Observability**: LangSmith
+
+---
+
+*Made with ❤️ and patience by Aayushmaan Hooda*
