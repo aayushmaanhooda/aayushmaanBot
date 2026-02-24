@@ -92,7 +92,7 @@ Tested with **Locust** from a separate EC2 instance.
 
 High response times are expected — each request involves LLM inference, RAG retrieval from Pinecone, and SSE streaming.
 
-![Locust Load Test Charts](images/locust.png)
+![Locust Load Test Charts](images/locustcharts.png)
 
 ## Tech Stack
 
