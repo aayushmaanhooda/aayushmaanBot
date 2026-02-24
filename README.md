@@ -2,7 +2,6 @@
 
 A personal AI chatbot and portfolio assistant built for [aayushmaan-bot.vercel.app](https://aayushmaan-bot.vercel.app). It answers questions about my background, projects, skills, and experience using a RAG pipeline backed by a personal knowledge base. Includes a voice agent (Beta) for speech-based interaction.
 
-![Dashboard](dashboard.png)
 
 ## Architecture
 
