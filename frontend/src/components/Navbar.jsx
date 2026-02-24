@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import styles from './Navbar.module.css'
 import profileImg from '../assets/profile.png'
 import resumePdf from '../assets/resume.pdf'
@@ -83,6 +84,8 @@ const MicIcon = () => (
 )
 
 export default function Navbar({ theme, onToggleTheme, onLogoClick, onVoiceClick }) {
+  const [menuOpen, setMenuOpen] = useState(false)
+
   return (
     <nav className={styles.navbar}>
       <div className={styles.inner}>
@@ -128,6 +131,51 @@ export default function Navbar({ theme, onToggleTheme, onLogoClick, onVoiceClick
           {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
         </button>
       </div>
+
+      <button
+        className={`${styles.hamburger} ${menuOpen ? styles.hamburgerOpen : ''}`}
+        onClick={() => setMenuOpen(prev => !prev)}
+        aria-label="Menu"
+      >
+        <span /><span /><span />
+      </button>
+
+      {menuOpen && (
+        <>
+          <div className={styles.overlay} onClick={() => setMenuOpen(false)} />
+          <div className={styles.mobileMenu}>
+            {LINKS.map(link => (
+              <a
+                key={link.label}
+                href={link.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.mobileLink}
+                onClick={() => setMenuOpen(false)}
+              >
+                {link.icon}
+                <span>{link.label}</span>
+              </a>
+            ))}
+            <div className={styles.menuDivider} />
+            <button
+              className={styles.mobileLink}
+              onClick={() => { onVoiceClick(); setMenuOpen(false) }}
+            >
+              <MicIcon />
+              <span>Voice Agent</span>
+              <span className={styles.mobileBeta}>beta</span>
+            </button>
+            <button
+              className={styles.mobileLink}
+              onClick={() => { onToggleTheme(); setMenuOpen(false) }}
+            >
+              {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+              <span>{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>
+            </button>
+          </div>
+        </>
+      )}
     </nav>
   )
 }
