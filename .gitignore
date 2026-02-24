@@ -20,4 +20,4 @@ backend/app/truth.jsonl
 .DS_Store
 .DS_Stores
 frontend/.env.development
-locust.png
+# locust.png
