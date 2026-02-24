@@ -94,3 +94,5 @@ High response times are expected — each request involves LLM inference, RAG re
 ---
 
 *Made with ❤️ and patience by Aayushmaan Hooda*
+
+*© 2026 Aayushmaan Hooda*
