@@ -65,6 +65,9 @@ export default function VoiceModal({ onClose }) {
   function toggleRecording() {
     if (phase === 'recording') {
       stopRecording()
+    } else if (phase === 'speaking') {
+      stopPlayback()
+      setPhase('idle')
     } else if (phase === 'idle') {
       startRecording()
     }
@@ -115,7 +118,10 @@ export default function VoiceModal({ onClose }) {
 
     audioContextRef.current.resume()
     visualize()
-    audio.play()
+    audio.play().catch(() => {
+      cancelAnimationFrame(animFrameRef.current)
+      setPhase('idle')
+    })
 
     audio.onended = () => {
       cancelAnimationFrame(animFrameRef.current)
@@ -173,7 +179,7 @@ export default function VoiceModal({ onClose }) {
           <button
             className={styles.micBtn}
             onClick={toggleRecording}
-            disabled={phase === 'processing' || phase === 'speaking'}
+            disabled={phase === 'processing'}
           >
             {phase === 'recording' ? (
               <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
