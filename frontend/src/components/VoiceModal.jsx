@@ -1,221 +1,154 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import profileImg from '../assets/profile.png'
+import { vapi, buildAssistantConfig } from '../config/vapiConfig'
 import styles from './VoiceModal.module.css'
 
-const BAR_COUNT = 50
-const API_URL = import.meta.env.VITE_API_URL
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0')
+  const s = (seconds % 60).toString().padStart(2, '0')
+  return `${m}:${s}`
+}
 
 export default function VoiceModal({ onClose }) {
-  const [phase, setPhase] = useState('idle') // idle | recording | processing | speaking
-  const mediaRecorderRef = useRef(null)
-  const chunksRef = useRef([])
-  const audioRef = useRef(null)
-  const audioContextRef = useRef(null)
-  const analyserRef = useRef(null)
-  const sourceCreatedRef = useRef(false)
-  const animFrameRef = useRef(null)
-  const barsRef = useRef(null)
-  const [transcript, setTranscript] = useState('')
+  const [callStatus, setCallStatus] = useState('idle')
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const ringAudioRef = useRef(null)
+  const timerRef = useRef(null)
 
-  const stopPlayback = useCallback(() => {
-    if (audioRef.current) {
-      audioRef.current.pause()
-      audioRef.current.currentTime = 0
+  useEffect(() => {
+    const audio = new Audio('/ring.mp3')
+    audio.loop = true
+    ringAudioRef.current = audio
+    return () => {
+      audio.pause()
+      audio.currentTime = 0
     }
-    cancelAnimationFrame(animFrameRef.current)
   }, [])
 
   useEffect(() => {
-    return () => {
-      stopPlayback()
-      if (mediaRecorderRef.current?.state === 'recording') {
-        mediaRecorderRef.current.stop()
-      }
+    const audio = ringAudioRef.current
+    if (!audio) return
+
+    if (callStatus === 'connecting') {
+      audio.currentTime = 0
+      audio.play().catch(() => {})
+    } else {
+      audio.pause()
+      audio.currentTime = 0
     }
-  }, [stopPlayback])
+  }, [callStatus])
 
-  async function startRecording() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const recorder = new MediaRecorder(stream)
-      chunksRef.current = []
-
-      recorder.ondataavailable = (e) => chunksRef.current.push(e.data)
-      recorder.onstop = () => {
-        stream.getTracks().forEach(t => t.stop())
-        const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
-        sendAudio(blob)
-      }
-
-      recorder.start()
-      mediaRecorderRef.current = recorder
-      setPhase('recording')
-      setTranscript('')
-    } catch {
-      setTranscript('Mic access denied. Check permissions.')
+  useEffect(() => {
+    if (callStatus === 'active') {
+      setElapsed(0)
+      timerRef.current = setInterval(() => setElapsed(prev => prev + 1), 1000)
+    } else {
+      clearInterval(timerRef.current)
     }
-  }
+    return () => clearInterval(timerRef.current)
+  }, [callStatus])
 
-  function stopRecording() {
-    if (mediaRecorderRef.current?.state !== 'inactive') {
-      mediaRecorderRef.current.stop()
-    }
-    setPhase('processing')
-  }
+  useEffect(() => {
+    vapi.on('call-start', () => setCallStatus('active'))
 
-  function toggleRecording() {
-    if (phase === 'recording') {
-      stopRecording()
-    } else if (phase === 'speaking') {
-      stopPlayback()
-      setPhase('idle')
-    } else if (phase === 'idle') {
-      startRecording()
-    }
-  }
-
-  async function sendAudio(blob) {
-    const formData = new FormData()
-    formData.append('audio', blob, 'recording.wav')
-
-    try {
-      const res = await fetch(`${API_URL}/voice-chat`, {
-        method: 'POST',
-        body: formData,
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Something went wrong')
-
-      setTranscript(data.question)
-      setPhase('speaking')
-      playWithWaveform(`${API_URL}${data.audio_url}`)
-    } catch (err) {
-      setTranscript('Error: ' + err.message)
-      setPhase('idle')
-    }
-  }
-
-  function playWithWaveform(url) {
-    const audio = audioRef.current
-    audio.src = url
-    audio.crossOrigin = 'anonymous'
-
-    if (!audioContextRef.current) {
-      const AudioCtx = window.AudioContext || window['webkitAudioContext']
-      const ctx = new AudioCtx()
-      const analyser = ctx.createAnalyser()
-      analyser.fftSize = 128
-      analyser.smoothingTimeConstant = 0.8
-      audioContextRef.current = ctx
-      analyserRef.current = analyser
-    }
-
-    if (!sourceCreatedRef.current) {
-      const source = audioContextRef.current.createMediaElementSource(audio)
-      source.connect(analyserRef.current)
-      analyserRef.current.connect(audioContextRef.current.destination)
-      sourceCreatedRef.current = true
-    }
-
-    audioContextRef.current.resume()
-    visualize()
-    audio.play().catch(() => {
-      cancelAnimationFrame(animFrameRef.current)
-      setPhase('idle')
+    vapi.on('call-end', () => {
+      setCallStatus('idle')
+      setIsSpeaking(false)
     })
 
-    audio.onended = () => {
-      cancelAnimationFrame(animFrameRef.current)
-      if (barsRef.current) {
-        Array.from(barsRef.current.children).forEach(bar => {
-          bar.style.height = '4px'
-        })
-      }
-      setPhase('idle')
+    vapi.on('speech-start', () => setIsSpeaking(true))
+    vapi.on('speech-end', () => setIsSpeaking(false))
+
+    vapi.on('error', (error) => {
+      console.error('Vapi error:', error)
+      setCallStatus('idle')
+    })
+
+    return () => vapi.removeAllListeners()
+  }, [])
+
+  const startCall = async () => {
+    setCallStatus('connecting')
+    try {
+      await vapi.start(buildAssistantConfig())
+    } catch (err) {
+      console.error('Failed to start call:', err)
+      setCallStatus('idle')
     }
   }
 
-  function visualize() {
-    const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount)
-    analyserRef.current.getByteFrequencyData(dataArray)
-    const bars = barsRef.current?.children
-
-    if (bars) {
-      for (let i = 0; i < BAR_COUNT; i++) {
-        const idx = Math.floor((i / BAR_COUNT) * dataArray.length)
-        const value = dataArray[idx]
-        const height = Math.max(4, (value / 255) * 65)
-        bars[i].style.height = `${height}px`
-        bars[i].style.opacity = `${0.3 + (value / 255) * 0.7}`
-      }
-    }
-
-    animFrameRef.current = requestAnimationFrame(visualize)
+  const endCall = () => {
+    vapi.stop()
+    setCallStatus('idle')
   }
 
-  const statusText = {
-    idle: 'Press the mic to speak',
-    recording: 'Listening... tap again to stop',
-    processing: 'Thinking...',
-    speaking: 'Speaking...',
+  const handleClose = () => {
+    if (callStatus !== 'idle') endCall()
+    onClose()
   }
+
+  const isInCall = callStatus === 'connecting' || callStatus === 'active'
 
   return (
     <div className={styles.overlay}>
-      <button className={styles.close} onClick={onClose} aria-label="Close">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <line x1="18" y1="6" x2="6" y2="18" />
-          <line x1="6" y1="6" x2="18" y2="18" />
-        </svg>
-      </button>
+      <div className={styles.card}>
+        <button className={styles.closeBtn} onClick={handleClose} aria-label="Close">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
 
-      <div className={styles.container}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Voice Assistant (Beta)</h2>
-          <p className={styles.subtitle}>Talk to Aayushmaan's digital twin</p>
+        <div className={styles.callerInfo}>
+          <div className={`${styles.avatarRing} ${isInCall ? styles.avatarRingActive : ''}`}>
+            <img src={profileImg} alt="Aayushmaan" className={styles.avatar} />
+          </div>
+          <h2 className={styles.callerName}>Aayushmaan Hooda</h2>
+          <p className={styles.callerRole}>Backend AI Engineer</p>
         </div>
 
-        <div className={`${styles.micWrapper} ${styles[phase]}`}>
-          <div className={styles.micRing} />
-          <button
-            className={styles.micBtn}
-            onClick={toggleRecording}
-            disabled={phase === 'processing'}
-          >
-            {phase === 'recording' ? (
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="6" y="6" width="12" height="12" rx="2" />
-              </svg>
-            ) : (
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z" />
-                <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
-                <line x1="12" y1="19" x2="12" y2="23" />
-                <line x1="8" y1="23" x2="16" y2="23" />
-              </svg>
-            )}
-          </button>
+        <div className={styles.statusArea}>
+          {callStatus === 'idle' && (
+            <p className={styles.statusIdle}>Tap to call</p>
+          )}
+          {callStatus === 'connecting' && (
+            <p className={styles.statusConnecting}>Calling...</p>
+          )}
+          {callStatus === 'active' && (
+            <>
+              <p className={styles.timer}>{formatTime(elapsed)}</p>
+              <div className={styles.liveIndicator}>
+                <span className={`${styles.dot} ${isSpeaking ? styles.dotSpeaking : ''}`} />
+                <span className={styles.liveText}>
+                  {isSpeaking ? 'Speaking' : 'Listening'}
+                </span>
+              </div>
+            </>
+          )}
         </div>
 
-        <p className={`${styles.status} ${styles[phase]}`}>
-          {statusText[phase]}
+        <div className={styles.controls}>
+          {callStatus === 'idle' && (
+            <button className={styles.callBtn} onClick={startCall} aria-label="Start call">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56a.977.977 0 0 0-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z" />
+              </svg>
+            </button>
+          )}
+          {isInCall && (
+            <button className={styles.endBtn} onClick={endCall} aria-label="End call">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 9c-1.6 0-3.15.25-4.6.72v3.1c0 .39-.23.74-.56.9-.98.49-1.87 1.12-2.66 1.85-.18.18-.43.28-.7.28-.28 0-.53-.11-.71-.29L.29 13.08a.956.956 0 0 1-.29-.7c0-.28.11-.53.29-.71C3.34 8.78 7.46 7 12 7s8.66 1.78 11.71 4.67c.18.18.29.43.29.71 0 .28-.11.53-.29.71l-2.48 2.48c-.18.18-.43.29-.71.29-.27 0-.52-.11-.7-.28a11.27 11.27 0 0 0-2.67-1.85.996.996 0 0 1-.56-.9v-3.1C15.15 9.25 13.6 9 12 9z" />
+              </svg>
+            </button>
+          )}
+        </div>
+
+        <p className={styles.footer}>
+          <span className={styles.betaTag}>beta</span>
+          vapi + rag + 11labs
         </p>
-
-        {transcript && (
-          <p className={styles.transcript}>"{transcript}"</p>
-        )}
-
-        <div
-          ref={barsRef}
-          className={`${styles.waveform} ${phase === 'speaking' ? styles.waveformActive : ''}`}
-        >
-          {Array.from({ length: BAR_COUNT }, (_, i) => (
-            <div key={i} className={styles.bar} />
-          ))}
-        </div>
-
-        <audio ref={audioRef} style={{ display: 'none' }} />
-
-        <p className={styles.footer}>faster-whisper + langchain + edge-tts</p>
       </div>
     </div>
   )

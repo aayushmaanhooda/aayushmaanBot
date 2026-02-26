@@ -1,13 +1,15 @@
+/* ---- Fullscreen overlay ---- */
+
 .overlay {
   position: fixed;
   inset: 0;
   z-index: 200;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(16px);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(14px);
   display: flex;
   align-items: center;
   justify-content: center;
-  animation: fadeIn 0.25s ease;
+  animation: fadeIn 0.2s ease;
 }
 
 @keyframes fadeIn {
@@ -15,259 +17,286 @@
   to   { opacity: 1; }
 }
 
-.close {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  width: 44px;
-  height: 44px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
+/* ---- Phone call card ---- */
 
-.close:hover {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-}
-
-.container {
+.card {
+  position: relative;
+  width: 340px;
+  background: #ffffff;
+  border: 1px solid rgba(108, 92, 231, 0.15);
+  border-radius: 24px;
+  padding: 40px 32px 28px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
-  max-width: 460px;
-  width: 100%;
+  gap: 20px;
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(108, 92, 231, 0.05) inset;
 }
 
-.header {
-  text-align: center;
-}
-
-.title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: white;
-  letter-spacing: -0.3px;
-}
-
-.subtitle {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 0.9rem;
-  margin-top: 0.3rem;
-}
-
-/* ---- Mic button ---- */
-
-.micWrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 1rem 0;
-}
-
-.micRing {
+.closeBtn {
   position: absolute;
-  width: 160px;
-  height: 160px;
+  top: 14px;
+  right: 14px;
+  width: 32px;
+  height: 32px;
+  border: none;
   border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.4s ease;
-}
-
-.recording .micRing {
-  border-color: #ef4444;
-  box-shadow: 0 0 40px rgba(239, 68, 68, 0.2), 0 0 80px rgba(239, 68, 68, 0.1);
-  animation: pulseRing 1.5s ease-in-out infinite;
-}
-
-.processing .micRing {
-  border-color: var(--accent, #6c5ce7);
-  box-shadow: 0 0 40px rgba(108, 92, 231, 0.2);
-  animation: spinRing 2s linear infinite;
-}
-
-.speaking .micRing {
-  border-color: var(--accent, #6c5ce7);
-  box-shadow: 0 0 30px rgba(108, 92, 231, 0.15);
-}
-
-@keyframes pulseRing {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.08); opacity: 0.6; }
-}
-
-@keyframes spinRing {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.micBtn {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.85);
+  background: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.35);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 2;
+  transition: all 0.15s ease;
 }
 
-.micBtn:hover:not(:disabled) {
-  border-color: var(--accent, #6c5ce7);
-  box-shadow: 0 0 24px rgba(108, 92, 231, 0.25);
+.closeBtn:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: rgba(0, 0, 0, 0.6);
 }
 
-.micBtn:active:not(:disabled) {
-  transform: scale(0.96);
+/* ---- Caller info ---- */
+
+.callerInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
 
-.micBtn:disabled {
-  cursor: wait;
-  opacity: 0.7;
+.avatarRing {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  padding: 3px;
+  background: rgba(0, 0, 0, 0.06);
+  transition: all 0.4s ease;
 }
 
-.recording .micBtn {
-  border-color: #ef4444;
-  background: rgba(239, 68, 68, 0.12);
+.avatarRingActive {
+  background: linear-gradient(135deg, #6c5ce7, #818cf8);
+  animation: ringPulse 2s ease-in-out infinite;
 }
 
-.recording .micBtn svg {
-  color: #ef4444;
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
 }
 
-.processing .micBtn {
-  border-color: var(--accent, #6c5ce7);
+.callerName {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  letter-spacing: -0.2px;
+  margin: 0;
 }
 
-/* ---- Status text ---- */
-
-.status {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.45);
-  text-align: center;
-  min-height: 1.2rem;
-  transition: color 0.3s;
+.callerRole {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  margin: 0;
 }
 
-.status.recording {
-  color: #ef4444;
+/* ---- Status area ---- */
+
+.statusArea {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-height: 48px;
+  justify-content: center;
 }
 
-.status.processing {
-  color: var(--accent, #6c5ce7);
-  font-weight: 700;
+.statusIdle {
+  font-size: 0.9rem;
+  color: #9ca3af;
+  margin: 0;
+}
+
+.statusConnecting {
+  font-size: 0.95rem;
+  color: #6c5ce7;
+  font-weight: 500;
+  margin: 0;
   animation: blink 1.2s ease-in-out infinite;
 }
 
-.status.speaking {
-  color: var(--accent, #6c5ce7);
+.timer {
+  font-size: 1.6rem;
+  font-weight: 300;
+  color: #1a1a1a;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+  margin: 0;
 }
+
+.liveIndicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #6c5ce7;
+  transition: all 0.3s ease;
+}
+
+.dotSpeaking {
+  background: #818cf8;
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.6);
+  animation: dotPulse 0.8s ease-in-out infinite;
+}
+
+.liveText {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+/* ---- Call controls ---- */
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding-top: 8px;
+}
+
+.callBtn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #6c5ce7, #5a4bd1);
+  box-shadow: 0 4px 20px rgba(108, 92, 231, 0.35);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.callBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 28px rgba(108, 92, 231, 0.55);
+}
+
+.callBtn:active {
+  transform: scale(0.95);
+}
+
+.endBtn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.3);
+  color: #fff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.endBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 4px 28px rgba(239, 68, 68, 0.5);
+}
+
+.endBtn:active {
+  transform: scale(0.95);
+}
+
+/* ---- Footer ---- */
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.65rem;
+  color: #c0c0c0;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin: 0;
+  padding-top: 4px;
+}
+
+.betaTag {
+  font-size: 8px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #6c5ce7;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+/* ---- Animations ---- */
 
 @keyframes blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
 
-.transcript {
-  font-size: 0.85rem;
-  color: rgba(255, 255, 255, 0.6);
-  text-align: center;
-  font-style: italic;
-  max-width: 90%;
-  line-height: 1.4;
+@keyframes ringPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(108, 92, 231, 0.3); }
+  50% { box-shadow: 0 0 0 10px rgba(108, 92, 231, 0); }
 }
 
-/* ---- Waveform ---- */
-
-.waveform {
-  width: 100%;
-  height: 70px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 3px;
-  opacity: 0;
-  transform: scaleY(0.5);
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-
-.waveformActive {
-  opacity: 1;
-  transform: scaleY(1);
-}
-
-.bar {
-  width: 4px;
-  height: 4px;
-  background: var(--accent, #6c5ce7);
-  border-radius: 4px;
-  transition: height 0.06s ease;
-  box-shadow: 0 0 6px rgba(108, 92, 231, 0.3);
-}
-
-/* ---- Footer ---- */
-
-.footer {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.25);
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  margin-top: 1rem;
+@keyframes dotPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.6); }
 }
 
 /* ---- Mobile ---- */
 
-@media (max-width: 600px) {
-  .container {
-    padding: 1.5rem 1rem;
-    gap: 1.2rem;
+@media (max-width: 480px) {
+  .card {
+    width: 300px;
+    padding: 32px 24px 24px;
+    gap: 16px;
+    border-radius: 20px;
   }
 
-  .title {
-    font-size: 1.25rem;
+  .avatarRing {
+    width: 72px;
+    height: 72px;
   }
 
-  .micBtn {
-    width: 100px;
-    height: 100px;
+  .callerName {
+    font-size: 1.05rem;
   }
 
-  .micRing {
-    width: 136px;
-    height: 136px;
+  .timer {
+    font-size: 1.35rem;
   }
 
-  .micBtn svg {
-    width: 28px;
-    height: 28px;
+  .callBtn,
+  .endBtn {
+    width: 56px;
+    height: 56px;
   }
 
-  .close {
-    top: 14px;
-    right: 14px;
-    width: 38px;
-    height: 38px;
-  }
-
-  .waveform {
-    height: 50px;
-  }
-
-  .bar {
-    width: 3px;
+  .callBtn svg,
+  .endBtn svg {
+    width: 24px;
+    height: 24px;
   }
 }

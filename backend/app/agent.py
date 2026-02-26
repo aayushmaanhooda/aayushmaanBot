@@ -19,7 +19,6 @@ from langchain_pinecone import PineconeVectorStore
 from langchain_tavily import TavilySearch
 from pinecone import Pinecone, ServerlessSpec
 from langgraph.checkpoint.memory import InMemorySaver
-from langchain.agents.middleware import PIIMiddleware
 
 from prompts import system_prompt, voice_system_prompt
 
@@ -154,6 +153,22 @@ Available sections:
 
 
 # ---------------------------------------------------------------------------
+# Standalone RAG query (used by VAPI webhook)
+# ---------------------------------------------------------------------------
+
+
+def query_rag(query: str) -> str:
+    """Fast RAG query for VAPI — skips LLM filter routing for speed."""
+    retrieved_docs = _vector_store.similarity_search(query, k=4)
+    if not retrieved_docs:
+        return "No information found."
+    return "\n\n".join(
+        f"Source: {doc.metadata}\nContent: {doc.page_content}"
+        for doc in retrieved_docs
+    )
+
+
+# ---------------------------------------------------------------------------
 # Tools
 # ---------------------------------------------------------------------------
 
@@ -243,6 +258,8 @@ def switch_prompt(request: ModelRequest) -> str:
 
 
 def build_agent():
+    # from langchain.agents.middleware import PIIMiddleware
+
     setup_vector_store()
     index_documents()
 
@@ -255,19 +272,19 @@ def build_agent():
         tools,
         middleware=[
             switch_prompt,
-            PIIMiddleware(
-            pii_type="email",
-            strategy="redact",  
-            apply_to_input=True,           # Scrub user input
-            apply_to_tool_results=True,    # ← Scrub retriever output
-            apply_to_output=True           # Scrub model output
-        ),
-        PIIMiddleware(
-            pii_type="australia_phone",
-            detector=r"(\+?61|0)?[ -]?(4\d{8}|(?:[2-8]\d{2})[ -]?\d{4}[ -]?\d{4})",
-            strategy="redact",  # or "mask", "hash", "block"
-            apply_to_tool_results=True  # Scrubs retriever output
-        )
+        #     PIIMiddleware(
+        #     pii_type="email",
+        #     strategy="redact",  
+        #     apply_to_input=True,           # Scrub user input
+        #     apply_to_tool_results=True,    # ← Scrub retriever output
+        #     apply_to_output=True           # Scrub model output
+        # ),
+        # PIIMiddleware(
+        #     pii_type="australia_phone",
+        #     detector=r"(\+?61|0)?[ -]?(4\d{8}|(?:[2-8]\d{2})[ -]?\d{4}[ -]?\d{4})",
+        #     strategy="redact",  # or "mask", "hash", "block"
+        #     apply_to_tool_results=True  # Scrubs retriever output
+        # )
             
             
             ],

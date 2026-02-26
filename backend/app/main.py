@@ -3,35 +3,42 @@ import json
 import uuid
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, UploadFile, File, HTTPException
+print("[1/6] Loading FastAPI...")
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request
 from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+print("[2/6] Loading LangChain...")
 from langchain_core.messages import AIMessageChunk
 
+print("[3/6] Loading agent...")
 from models import ChatRequest
-from agent import build_agent
+from agent import build_agent, query_rag
+print("[4/6] Loading logger...")
 from logger import get_logger
+print("[5/6] Loading STT...")
 from voice.stt import transcribe, load_whisper_model
+print("[6/6] Loading TTS...")
 from voice.tts import synthesize, AUDIO_DIR
+print("All imports done")
 
 
 logger = get_logger(__name__)
 
-
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print("Starting up — building agent...")
     app.state.agent = build_agent()
-    logger.info("Agent loaded and ready")
+    print("Agent ready")
+    print("Loading Whisper model...")
     load_whisper_model()
-    logger.info("Whisper model loaded and ready")
+    print("Whisper ready — server is live")
     yield
-
 
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://aayushmaan-bot.vercel.app", "http://localhost:5173", "https://aayushbot.myddns.me"],
+    allow_origins=["https://aayushmaan-bot.vercel.app", "http://localhost:5173", "https://aayushbot.myddns.me", "*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -110,6 +117,44 @@ def get_audio(filename: str):
     if not os.path.exists(filepath):
         raise HTTPException(status_code=404, detail="Audio file not found")
     return FileResponse(filepath, media_type="audio/mpeg")
+
+@app.post("/vapi-chat")
+async def vapi_chat(request: Request):
+    payload = await request.json()
+    message = payload.get("message", {})
+    msg_type = message.get("type", "")
+
+    if msg_type == "tool-calls":
+        tool_calls = message.get("toolCallList", [])
+        results = []
+        for tc in tool_calls:
+            tc_id = tc.get("id", "")
+            fn = tc.get("function", {})
+            fn_name = fn.get("name", "")
+            args = fn.get("arguments", {})
+            if isinstance(args, str):
+                args = json.loads(args)
+
+            logger.info(f"VAPI tool call: {fn_name}, query: {args}")
+
+            if fn_name == "search_knowledge":
+                query = args.get("query", "")
+                if query:
+                    try:
+                        result = query_rag(query)
+                        logger.info(f"RAG result length: {len(result)}")
+                        results.append({"toolCallId": tc_id, "result": result})
+                    except Exception as e:
+                        logger.error(f"RAG query failed: {e}")
+                        results.append({"toolCallId": tc_id, "result": "Error retrieving information."})
+                else:
+                    results.append({"toolCallId": tc_id, "result": "No query provided."})
+            else:
+                results.append({"toolCallId": tc_id, "result": "Unknown function."})
+
+        return {"results": results}
+
+    return {}
 
 
 if __name__ == "__main__":
