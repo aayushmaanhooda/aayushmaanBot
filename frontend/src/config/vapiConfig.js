@@ -59,7 +59,9 @@ When the user says goodbye or they're done, wish them well and end the call.`
               properties: {
                 query: {
                   type: 'string',
-                  description: 'The search query about Aayushmaan'
+                  // description: 'The search query about Aayushmaan',
+                  description: 'A specific, detailed search query to retrieve information from Aayushmaan\'s knowledge base. RULES: (1) Always include "Aayushmaan" in the query. (2) Be specific — include the exact topic, category, and context from the user\'s question. (3) Expand vague terms into full descriptive phrases. BAD: "sports", "work", "projects". GOOD: "Aayushmaan sports interests hobbies watches cricket football", "Aayushmaan work experience jobs companies backend developer". Always generate a 5 to 10 word query with relevant keywords.'
+
                 }
               },
               required: ['query']

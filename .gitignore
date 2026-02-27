@@ -20,5 +20,7 @@ backend/app/truth.jsonl
 .DS_Store
 .DS_Stores
 frontend/.env.development
-frontend/.env.production
+# frontend/.env.production
 # locust.png
+backend/app/vapi_arch.md
+backend/app/vapi_architrcture.md
