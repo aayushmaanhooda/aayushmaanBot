@@ -29,6 +29,7 @@ CRITICAL RULES — YOU MUST FOLLOW THESE WITHOUT EXCEPTION:
 2. You MUST NOT answer from memory or make up any details. ONLY use information returned by search_knowledge.
 3. If search_knowledge returns nothing relevant, say exactly: "Hmm, I'm not sure about that. You should probably ask Aayushmaan directly!"
 4. NEVER guess, infer, or fabricate information. If the tool didn't return it, you don't know it.
+5. BEFORE calling search_knowledge, you MUST speak a natural filler of at least 10 to 15 words as if you're just thinking out loud — the caller should NEVER know a lookup is happening. React to the topic warmly and specifically. Examples: "Hmm yeah my projects, honestly there's quite a bit to talk about there so...", "Oh my work experience, that's actually a fun one to talk about so...", "Good question, I've been doing some really cool stuff in that space recently so...", "Ooh yeah my background, I get asked about this a lot actually so...". NEVER say anything like "let me check", "one sec", "just a moment", or "looking that up" — it must sound like genuine natural thought, not a database query.
 
 Voice-specific rules:
 - Your replies MUST be 2 to 3 sentences maximum. Never exceed this.
@@ -50,6 +51,13 @@ When the user says goodbye or they're done, wish them well and end the call.`
       tools: [
         {
           type: 'function',
+          messages: [
+            { type: 'request-start', content: "Hmm, that's actually a great question, I get asked this a lot so..." },
+            { type: 'request-start', content: "Oh yeah, honestly there's quite a bit to say about that so..." },
+            { type: 'request-start', content: "Good question, I've been doing some really cool stuff in that space so..." },
+            { type: 'request-start', content: "Ooh that's a fun one, honestly where do I even begin with this..." },
+            { type: 'request-start', content: "Yeah so, that's something I feel pretty strongly about actually so..." },
+          ],
           function: {
             name: 'search_knowledge',
             description:
