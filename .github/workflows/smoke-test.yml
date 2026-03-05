@@ -31,7 +31,7 @@ jobs:
         run: |
           RESPONSE=$(curl -s --connect-timeout 15 --max-time 120 -o /tmp/chat.json -w "%{http_code}" \
             -X POST "${{ secrets.EC2_BASE_URL }}/chat" \
-            -H "Content-Type: application/json" \
+            -H "Content-Type: application/json", "'x-api-key': ${{secrets.SECURITY_API_KEY}}" \
             -d '{"message": "Who is Aayushmaan?", "thread_id": "ci-smoke-test"}')
 
           echo "Status: $RESPONSE"
