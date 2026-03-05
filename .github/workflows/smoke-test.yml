@@ -43,8 +43,8 @@ jobs:
             exit 1
           fi
 
-          REPLY=$(python3 -c "import sys,json; print(json.load(sys.stdin).get('reply',''))" < /tmp/chat.json)
-          [ -n "$REPLY" ] && echo "/chat passed" || { echo "empty reply"; exit 1; }
+          REPLY=$(grep '^data:' /tmp/chat.json | grep -v '\[DONE\]' | sed 's/^data: //' | python3 -c "import sys,json; print(''.join(json.loads(l).get('token','') for l in sys.stdin))")
+          [ -n "$REPLY" ] && echo "/chat passed: $REPLY" || { echo "empty reply"; exit 1; }
 
       - name: All smoke tests passed
         run: echo "🚀 All endpoints healthy"
