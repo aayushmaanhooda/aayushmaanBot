@@ -6,8 +6,13 @@ import InputBar from './components/InputBar'
 import VoiceModal from './components/VoiceModal'
 import { Analytics } from '@vercel/analytics/react'
 import './App.module.css'
+import profileImg from './assets/profile.png'
 
 const API_URL = import.meta.env.VITE_API_URL
+
+// Preload profile image so it's ready before the voice modal opens
+const _preload = new Image()
+_preload.src = profileImg
 
 const QUICK_ANSWERS = {
   "What's your tech stack?": `My stack is pretty broad but here's how it breaks down:
