@@ -79,7 +79,10 @@ export default function App() {
     try {
       const res = await fetch(`${API_URL}/chat`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': import.meta.env.VITE_SECURITY_API_KEY,
+        },
         body: JSON.stringify({ message: text.trim(), thread_id: threadId }),
       })
 

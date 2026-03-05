@@ -2,25 +2,16 @@ import os
 import json
 import uuid
 from contextlib import asynccontextmanager
-
-print("[1/6] Loading FastAPI...")
-from fastapi import FastAPI, UploadFile, File, HTTPException, Request
+from fastapi import FastAPI, UploadFile, File, HTTPException, Request, Depends
 from fastapi.responses import RedirectResponse, FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
-print("[2/6] Loading LangChain...")
 from langchain_core.messages import AIMessageChunk
-
-print("[3/6] Loading agent...")
 from models import ChatRequest
 from agent import build_agent, query_rag
-print("[4/6] Loading logger...")
 from logger import get_logger
-print("[5/6] Loading STT...")
 from voice.stt import transcribe, load_whisper_model
-print("[6/6] Loading TTS...")
 from voice.tts import synthesize, AUDIO_DIR
-print("All imports done")
-
+from security import require_api_key
 
 logger = get_logger(__name__)
 
@@ -38,7 +29,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://aayushmaan-bot.vercel.app", "http://localhost:5173", "https://aayushbot.myddns.me", "*"],
+    allow_origins=["https://aayushmaan-bot.vercel.app", "http://localhost:5173", "https://aayushbot.myddns.me"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -60,7 +51,7 @@ async def book_call():
 
 
 @app.post("/chat")
-async def chat(req: ChatRequest):
+async def chat(req: ChatRequest, _: str = Depends(require_api_key)):
     agent = app.state.agent
     config = {"configurable": {"thread_id": req.thread_id}}
 
