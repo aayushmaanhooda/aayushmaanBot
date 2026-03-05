@@ -265,6 +265,38 @@
   50% { transform: scale(1.6); }
 }
 
+/* ---- Dark mode ---- */
+
+:global([data-theme="dark"]) .card {
+  background: #1e1e2e;
+  border-color: rgba(108, 92, 231, 0.25);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(108, 92, 231, 0.1) inset;
+}
+
+:global([data-theme="dark"]) .closeBtn {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.4);
+}
+
+:global([data-theme="dark"]) .closeBtn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.7);
+}
+
+:global([data-theme="dark"]) .avatarRing {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+:global([data-theme="dark"]) .callerName {
+  color: #f1f5f9;
+}
+
+:global([data-theme="dark"]) .timer {
+  color: #f1f5f9;
+}
+
 /* ---- Mobile ---- */
 
 @media (max-width: 480px) {
