@@ -27,6 +27,7 @@ jobs:
             cd /home/ubuntu/aayushmaanBot
             git fetch origin master
             git reset --hard origin/master
+            rm -f /home/ubuntu/aayushmaanBot/backend/app/indexed_docs.json
             sudo systemctl restart aayushbot
             echo "Waiting for server to start..."
             for i in 1 2 3 4 5 6; do
