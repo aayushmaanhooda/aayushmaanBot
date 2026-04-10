@@ -1,0 +1,54 @@
+name: Deploy Backend on Resume/Knowledge Update
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'backend/app/aayushmaan.md'
+      - 'frontend/src/assets/resume.pdf'
+      - 'backend/app/**'
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/aayushmaanBot
+            git pull origin master
+            sudo systemctl restart aayushbot
+            echo "Waiting for server to start..."
+            sleep 5
+            curl -sf http://localhost:8000/health && echo "Deploy successful!" || echo "Health check failed!"
+
+  smoke-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Test /health endpoint
+        run: |
+          RESPONSE=$(curl -s --connect-timeout 15 --max-time 30 -o /tmp/health.json -w "%{http_code}" \
+            "${{ secrets.EC2_BASE_URL }}/health")
+          echo "Status: $RESPONSE"
+          cat /tmp/health.json
+          [ "$RESPONSE" = "200" ] && echo "Health check passed" || { echo "Health check failed"; exit 1; }
+
+      - name: Test /chat endpoint
+        run: |
+          RESPONSE=$(curl -s --connect-timeout 15 --max-time 120 -o /tmp/chat.json -w "%{http_code}" \
+            -X POST "${{ secrets.EC2_BASE_URL }}/chat" \
+            -H "Content-Type: application/json" \
+            -H "x-api-key: ${{ secrets.SECURITY_API_KEY }}" \
+            -d '{"message": "Who is Aayushmaan?", "thread_id": "ci-deploy-test"}')
+          echo "Status: $RESPONSE"
+          cat /tmp/chat.json
+          [ "$RESPONSE" = "200" ] && echo "Chat endpoint passed" || { echo "Chat endpoint failed"; exit 1; }
