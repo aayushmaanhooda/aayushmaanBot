@@ -21,13 +21,15 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
+          script_stop: true
           script: |
+            set -e
             cd /home/ubuntu/aayushmaanBot
             git pull origin master
             sudo systemctl restart aayushbot
             echo "Waiting for server to start..."
-            sleep 5
-            curl -sf http://localhost:8000/health && echo "Deploy successful!" || echo "Health check failed!"
+            sleep 10
+            curl -sf http://localhost:8000/health && echo "Deploy successful!"
 
   smoke-test:
     needs: deploy
