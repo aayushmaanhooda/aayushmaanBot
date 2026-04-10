@@ -106,6 +106,15 @@ def index_documents():
 
     chunks = splitter.split_text(md_text)
 
+    for chunk in chunks:
+        prefix_parts = []
+        if chunk.metadata.get("section"):
+            prefix_parts.append(chunk.metadata["section"])
+        if chunk.metadata.get("subsection"):
+            prefix_parts.append(chunk.metadata["subsection"])
+        if prefix_parts:
+            chunk.page_content = " > ".join(prefix_parts) + "\n" + chunk.page_content
+
     namespace = "aayush-docs"
     if not _is_pinecone_empty():
         _pc_index.delete(delete_all=True, namespace=namespace)
@@ -184,12 +193,12 @@ def rag_tool(query: str):
 
     retrieved_docs = _vector_store.similarity_search(
         query,
-        k=3,
+        k=5,
         filter=search_filter,
     )
 
     if not retrieved_docs:
-        retrieved_docs = _vector_store.similarity_search(query, k=4)
+        retrieved_docs = _vector_store.similarity_search(query, k=5)
 
     serialized = "\n\n".join(
         f"Source: {doc.metadata}\nContent: {doc.page_content}"
