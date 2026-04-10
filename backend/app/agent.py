@@ -187,6 +187,10 @@ def rag_tool(query: str):
         k=3,
         filter=search_filter,
     )
+
+    if not retrieved_docs:
+        retrieved_docs = _vector_store.similarity_search(query, k=4)
+
     serialized = "\n\n".join(
         f"Source: {doc.metadata}\nContent: {doc.page_content}"
         for doc in retrieved_docs
